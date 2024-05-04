@@ -40,6 +40,20 @@ export default ({ mode }) => {
           rewrite: path => path.replace(/^\/api/, '/') //把/api重写为/
         },
       },
+    },
+    //打包
+    build: {
+      chunkSizeWarningLimit: 1500,
+      rollupOptions: {
+        output: {
+          //将模块拆分成多个chunk, 减小每个chunk大小
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              return id.toString().split('node_modules/')[1].split('/')[0].toString()
+            }
+          }
+        }
+      }
     }
   })
 }

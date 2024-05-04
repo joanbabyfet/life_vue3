@@ -90,16 +90,18 @@
 </template>
 
 <script setup>
-import { computed, getCurrentInstance } from 'vue'
+import { ref, computed, getCurrentInstance, onUnmounted } from 'vue'
 import Progressbar from '@/components/Progressbar.vue'
 import Clock from '@/components/Clock.vue'
 import Weather from '@/components/Weather.vue'
-import useWeather from '@/composables/useWeather'
-import useHardware from '@/composables/useHardware'
+//import useWeather from '@/composables/useWeather'
+//import useHardware from '@/composables/useHardware'
 
-const { weatherData } = useWeather()
+//const { weatherData } = useWeather()
+//const { piData } = useHardware()
 const { proxy } = getCurrentInstance()
-const { piData } = useHardware()
+const piData = ref({})
+const weatherData = ref({})
 
 //计算属性
 const timedate = computed(() => {   
@@ -118,6 +120,89 @@ const cpuUsage = computed(() => {
 })
 const ramUsage = computed(() => {
   return parseInt(piData.value.ram_usage)
+})
+
+//websocket
+let ws = new WebSocket('ws://127.0.0.1:8080')
+//连接开启时调用
+const handle_open = () => {
+  console.log('Connection established')
+  heartbeat() //发送心跳包
+  //sayhi()
+  get_hardware()
+  get_weather()
+}
+//连接断开时调用
+const handle_close = () => {
+  console.log('Connection closed')
+}
+//服务端送来消息时
+const handle_message = (event) => {
+  console.log('RESPONSE:' + event.data)
+  if (event.data == '~H#S~') {
+    return
+  }
+  let obj = JSON.parse(event.data)
+  if (obj.action == "hardware") {
+    piData.value = obj.data
+  } else if (obj.action == "weather") {
+    weatherData.value = obj.data
+  }
+}
+//连接出错时调用
+const handle_error = () => {
+  console.log('Connection error')
+}
+//监听事件
+ws.addEventListener('open', handle_open)
+ws.addEventListener('close', handle_close)
+ws.addEventListener('message', handle_message)
+ws.addEventListener('error', handle_error)
+
+//心跳包
+let interval = null
+const heartbeat = () => {
+  let str = '~H#C~'
+  sendMessage(str)
+  interval = setInterval(() => { //循环执行
+    sendMessage(str)
+  }, 8000)
+}
+
+const get_hardware = () => {
+  let obj = {
+    action: 'hardware',
+  }
+  sendMessage(JSON.stringify(obj))
+}
+
+const get_weather = () => {
+  let obj = {
+    action: 'weather',
+  }
+  sendMessage(JSON.stringify(obj))
+}
+
+//向服务器注册用户
+// const sayhi = () => {
+//   let obj = {
+//     action: 'say_hi',
+//     token: 'xxx',
+//     data: {}
+//   }
+//   sendMessage(JSON.stringify(obj))
+// }
+
+//发送消息
+const sendMessage = (message) => {
+  console.log('SENT: ' + message)
+  ws.send(message)
+}
+
+//设置setInterval后, 需要在当前页面绑定关闭, 否则会一直执行
+onUnmounted(() => {
+    ws.close()
+    clearInterval(interval)
 })
 </script>
 
