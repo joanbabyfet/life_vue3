@@ -46,16 +46,9 @@
 
 <script setup>
 import { onMounted, watch, ref } from 'vue'
+import useTimeInterval from '@/composables/useTimeInterval'
 
-const timeInterval = ref(1)
-
-//循环执行
-setInterval(() => {
-    if (timeInterval.value > 1000) {
-        return timeInterval.value = 0
-    }
-    timeInterval.value ++
-}, 1000)
+const { timeInterval } = useTimeInterval()
 
 onMounted(() => {
     setTime(false)

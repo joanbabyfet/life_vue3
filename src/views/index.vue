@@ -90,18 +90,20 @@
 </template>
 
 <script setup>
-import { ref, computed, getCurrentInstance, onUnmounted } from 'vue'
+import { ref, computed, getCurrentInstance, onUnmounted, onMounted, watch } from 'vue'
 import Progressbar from '@/components/Progressbar.vue'
 import Clock from '@/components/Clock.vue'
 import Weather from '@/components/Weather.vue'
 //import useWeather from '@/composables/useWeather'
 //import useHardware from '@/composables/useHardware'
+import useTimeInterval from '@/composables/useTimeInterval'
 
 //const { weatherData } = useWeather()
 //const { piData } = useHardware()
 const { proxy } = getCurrentInstance()
 const piData = ref({})
 const weatherData = ref({})
+const { timeInterval } = useTimeInterval()
 
 //计算属性
 const timedate = computed(() => {   
@@ -127,9 +129,18 @@ let ws = new WebSocket('ws://127.0.0.1:8080')
 //连接开启时调用
 const handle_open = () => {
   console.log('Connection established')
-  heartbeat() //发送心跳包
-  //sayhi()
-  get_hardware()
+  heartbeat() //发送心跳包保持长连接
+  sayhi()
+  
+  //监听timeInterval数据, 变化则调用函数
+  watch(timeInterval, (newValue, oldValue) => {
+    get_hardware()
+  })
+
+  //每10分钟调1次接口
+  setInterval(() => {
+    get_weather()
+  }, 600000)
   get_weather()
 }
 //连接断开时调用
@@ -159,8 +170,8 @@ ws.addEventListener('close', handle_close)
 ws.addEventListener('message', handle_message)
 ws.addEventListener('error', handle_error)
 
-//心跳包
 let interval = null
+//連接上即發送心跳包，在10秒内未向服务端发送數據，将会被切断
 const heartbeat = () => {
   let str = '~H#C~'
   sendMessage(str)
@@ -184,14 +195,14 @@ const get_weather = () => {
 }
 
 //向服务器注册用户
-// const sayhi = () => {
-//   let obj = {
-//     action: 'say_hi',
-//     token: 'xxx',
-//     data: {}
-//   }
-//   sendMessage(JSON.stringify(obj))
-// }
+const sayhi = () => {
+  let obj = {
+    action: 'say_hi',
+    //token: 'xxx',
+    //data: {}
+  }
+  sendMessage(JSON.stringify(obj))
+}
 
 //发送消息
 const sendMessage = (message) => {
