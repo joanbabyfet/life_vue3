@@ -10,6 +10,7 @@
 ## Usage
 ```
 # 执行
+pnpm install
 pnpm run dev
 ```
 ![image](https://raw.githubusercontent.com/joanbabyfet/md_img/master/life/life.jpg)
