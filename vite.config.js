@@ -31,15 +31,15 @@ export default ({ mode }) => {
       port: 3002, //自定义端口
       https: false, //是否开启https, 默认false
       open: false, //是否自动打开浏览器, 默认false
-      proxy: {
-        '/api': { //遇到/api就去找代理
-          target: env.VITE_BASE_URL, //代理接口地址
-          ws: false,  //是否代理websocket
-          changeOrigin: true, //是否跨域
-          secure: false,  //是否https接口
-          rewrite: path => path.replace(/^\/api/, '/') //把/api重写为/
-        },
-      },
+      // proxy: {
+      //   '/api': { //遇到/api就去找代理
+      //     target: env.VITE_BASE_URL, //代理接口地址
+      //     ws: false,  //是否代理websocket
+      //     changeOrigin: true, //是否跨域
+      //     secure: false,  //是否https接口
+      //     rewrite: path => path.replace(/^\/api/, '/') //把/api重写为/
+      //   },
+      // },
     },
     //打包
     build: {

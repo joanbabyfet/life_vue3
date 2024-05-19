@@ -125,7 +125,7 @@ const ramUsage = computed(() => {
 })
 
 //websocket
-let ws = new WebSocket('ws://127.0.0.1:8080')
+let ws = new WebSocket(import.meta.env.VITE_APP_WEBSOCKET)
 //连接开启时调用
 const handle_open = () => {
   console.log('Connection established')
