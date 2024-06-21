@@ -52,7 +52,7 @@
             <weather :weather="weatherData.result?.realtime.skycon"/>
             <b>{{ weatherData.result?.realtime.temperature }}°C</b>
           </div>
-          <p><span>xxx湿度:</span><b>{{ $toFixed(weatherData.result?.realtime.humidity * 100) }}<small>%</small></b></p>
+          <p><span>湿度:</span><b>{{ $toFixed(weatherData.result?.realtime.humidity * 100) }}<small>%</small></b></p>
           <p><span>降雨:</span><b>{{ $toFixed(weatherData.result?.realtime.precipitation.local.intensity) }}<small>mm/h</small></b></p>
           <p><span>风速:</span><b>{{ $toFixed(weatherData.result?.realtime.wind.speed) }}<small>m/s</small></b></p>
           <p><span>PM2.5:</span><b>{{ $toFixed(weatherData.result?.realtime.air_quality.pm25) }}<small>μg/m3</small></b></p>
